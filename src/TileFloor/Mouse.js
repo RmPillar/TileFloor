@@ -12,17 +12,18 @@ export default class Mouse extends EventEmitter {
     this.camera = this.experience.camera;
     this.time = this.experience.time;
 
-    this.cursor = new THREE.Vector2();
-    this.mousePos = new THREE.Vector3(0, 0, 0);
-    this.lastMousePos = new THREE.Vector3(0, 0, 0);
-    this.mouseUv = new THREE.Vector3(0, 0, 0);
-    this.lastMouseUv = new THREE.Vector3(0, 0, 0);
+    this.cursor = new THREE.Vector2(9999, 9999);
+    this.mousePos = new THREE.Vector3(9999, 9999, 9999);
+    this.lastMousePos = new THREE.Vector3(9999, 9999, 9999);
+    this.mouseUv = new THREE.Vector3(9999, 9999, 9999);
+    this.lastMouseUv = new THREE.Vector3(9999, 9999, 9999);
     this.raycaster = new THREE.Raycaster();
 
     this.intersectObjects = [];
     this.needsUpdate = false;
     this.uvNeedsUpdate = false;
     this.active = false;
+    this.firstInteraction = false;
 
     this.xTo = gsap.quickTo(this.cursor, "x", {
       duration: 0.7,
@@ -62,6 +63,11 @@ export default class Mouse extends EventEmitter {
   handlePointerEnter(event) {
     this.active = true;
     this.trigger("mouseEnter");
+
+    gsap.set(this.cursor, {
+      x: (event.clientX / window.innerWidth) * 2 - 1,
+      y: -(event.clientY / window.innerHeight) * 2 + 1,
+    });
   }
 
   handlePointerLeave(event) {
@@ -106,6 +112,7 @@ export default class Mouse extends EventEmitter {
       }
     }
   }
+
   destroy() {
     document.removeEventListener("pointermove", this.handlePointerMove);
     document.removeEventListener("mouseenter", this.handlePointerEnter);
