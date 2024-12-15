@@ -21,7 +21,7 @@ export default class Renderer {
 
     this.setInstance();
     this.setPostProccessing();
-    this.setDebug();
+    // this.setDebug();
   }
 
   setInstance() {
@@ -164,6 +164,7 @@ export default class Renderer {
     if (!this.composer) {
       return;
     }
+
     this.composer.render();
   }
 

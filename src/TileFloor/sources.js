@@ -4,4 +4,9 @@ export default [
     type: "gltfModel",
     path: "/models/tile/tile.glb",
   },
+  {
+    name: "glow",
+    type: "texture",
+    path: "/glow.png",
+  },
 ];

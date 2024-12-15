@@ -13,6 +13,7 @@ export default class Tiles {
     this.resources = this.experience.resources;
     this.debug = this.experience.debug;
     this.mouse = this.experience.mouse;
+    this.canvas2D = this.experience.canvas2D;
 
     this.rows = 150;
     this.cols = 150;
@@ -20,12 +21,7 @@ export default class Tiles {
 
     this.displacementHeight = {
       current: 0,
-      max: 0.15,
-    };
-
-    this.displacementRadius = {
-      current: 0,
-      max: 1.25,
+      max: 0.5,
     };
 
     this.mousePosition = new THREE.Vector3();
@@ -61,9 +57,9 @@ export default class Tiles {
 
     // Create custom material that extends MeshPhongMaterial
     this.tileMaterial = TileMaterial({
-      displacementRadius: this.displacementRadius,
       displacementHeight: this.displacementHeight,
       mousePosition: this.mouse.mousePos,
+      displacementTexture: this.canvas2D.texture,
     });
 
     // Create instanced mesh
@@ -125,7 +121,6 @@ export default class Tiles {
     this.instancedTileMesh.computeBoundingBox();
 
     this.calculateTilesBoundingBox();
-    console.log(this.bounds);
 
     this.scene.add(this.instancedTileMesh);
   }
@@ -182,63 +177,30 @@ export default class Tiles {
   }
 
   handlePointerEnter(event) {
-    gsap
-      .timeline()
-      .to(this.displacementHeight, {
-        current: this.displacementHeight.max,
-        duration: 1,
-        ease: "power2.out",
-        onUpdate: () => {
-          if (!this.tileMaterial?.userData?.shader) return;
-          this.tileMaterial.userData.shader.uniforms.uDisplacementHeight.value =
-            this.displacementHeight.current;
-        },
-      })
-      .to(
-        this.displacementRadius,
-        {
-          current: this.displacementRadius.max,
-          duration: 1,
-          ease: "power2.out",
-          onUpdate: () => {
-            if (!this.tileMaterial?.userData?.shader) return;
-            this.tileMaterial.userData.shader.uniforms.uDisplacementRadius.value =
-              this.displacementRadius.current;
-          },
-        },
-        0
-      );
+    gsap.timeline().to(this.displacementHeight, {
+      current: this.displacementHeight.max,
+      duration: 1,
+      ease: "power2.out",
+      onUpdate: () => {
+        if (!this.tileMaterial?.userData?.shader) return;
+        this.tileMaterial.userData.shader.uniforms.uDisplacementHeight.value =
+          this.displacementHeight.current;
+      },
+    });
   }
 
   handlePointerLeave(event) {
-    gsap
-      .timeline()
-      .to(this.displacementHeight, {
-        current: 0,
-        duration: 1,
-        ease: "power2.out",
-        onUpdate: () => {
-          if (!this.tileMaterial?.userData?.shader) return;
+    gsap.timeline().to(this.displacementHeight, {
+      current: 0,
+      duration: 1,
+      ease: "power2.out",
+      onUpdate: () => {
+        if (!this.tileMaterial?.userData?.shader) return;
 
-          this.tileMaterial.userData.shader.uniforms.uDisplacementHeight.value =
-            this.displacementHeight.current;
-        },
-      })
-      .to(
-        this.displacementRadius,
-        {
-          current: 0,
-          duration: 1,
-          ease: "power2.out",
-          onUpdate: () => {
-            if (!this.tileMaterial?.userData?.shader) return;
-
-            this.tileMaterial.userData.shader.uniforms.uDisplacementRadius.value =
-              this.displacementRadius.current;
-          },
-        },
-        0
-      );
+        this.tileMaterial.userData.shader.uniforms.uDisplacementHeight.value =
+          this.displacementHeight.current;
+      },
+    });
   }
 
   addDebug() {
@@ -277,20 +239,6 @@ export default class Tiles {
         this.tileMaterial.userData.shader.uniforms.uDisplacementHeight.value =
           e.value;
       });
-
-    tileFolder
-      .addBinding(this.displacementRadius, "max", {
-        min: 0,
-        max: 3,
-        label: "Displacement Radius",
-      })
-      .on("change", (e) => {
-        if (!this.tileMaterial.userData.shader) return;
-
-        this.displacementRadius.current = e.value;
-        this.tileMaterial.userData.shader.uniforms.uDisplacementRadius.value =
-          e.value;
-      });
   }
 
   update() {
@@ -298,9 +246,14 @@ export default class Tiles {
       !this.mouse ||
       !this.camera?.instance ||
       !this.time ||
-      !this.tileMaterial?.userData?.shader
+      !this.tileMaterial?.userData?.shader ||
+      !this.canvas2D?.texture ||
+      !this.bounds
     )
       return;
+
+    this.tileMaterial.userData.shader.uniforms.uBounds.value =
+      this.bounds.x / 2;
 
     // Update mouse position
     if (this.mouse.needsUpdate) {
@@ -312,6 +265,9 @@ export default class Tiles {
 
     this.tileMaterial.userData.shader.uniforms.uTime.value =
       this.time.elapsed / 1000;
+
+    this.tileMaterial.userData.shader.uniforms.uDisplacementTexture.value =
+      this.canvas2D.texture;
   }
 
   destroy() {

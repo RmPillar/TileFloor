@@ -12,6 +12,7 @@ export default class Floor {
     this.time = this.experience.time;
     this.debug = this.experience.debug;
     this.mouse = this.experience.mouse;
+    this.canvas2D = this.experience.canvas2D;
     this.tiles = this.experience.tiles;
 
     this.floorHighlightRadius = {
@@ -116,13 +117,16 @@ export default class Floor {
       !this.time ||
       !this.mouse ||
       !this.scene ||
-      !this.floor
+      !this.floor ||
+      !this.canvas2D?.texture
     )
       return;
 
     if (this.mouse.needsUpdate) {
       this.floorMaterial.uniforms.uMousePosition.value = this.mouse.mousePos;
     }
+
+    this.floorMaterial.uniforms.uMouseTexture.value = this.canvas2D.texture;
 
     if (this.floorHighlightRadius.current !== this.floorHighlightRadius.last) {
       this.floorMaterial.uniforms.uHighlightRadius.value =

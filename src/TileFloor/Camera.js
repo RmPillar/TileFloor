@@ -12,6 +12,11 @@ export default class Camera {
 
     this.setInstance();
     this.setControls();
+
+    console.log(
+      this.getVisibleWidthAtZDepth(-2),
+      this.getVisibleHeightAtZDepth(-2)
+    );
   }
 
   setInstance() {
@@ -46,14 +51,14 @@ export default class Camera {
   }
 
   getVisibleHeightAtZDepth(depth) {
-    const vFOV = (this.camera.instance.fov * Math.PI) / 180;
+    const vFOV = (this.instance.fov * Math.PI) / 180;
 
     return 2 * Math.abs(depth) * Math.tan(vFOV / 2);
   }
 
   getVisibleWidthAtZDepth(depth) {
-    const height = this.getVisibleHeightAtZDepth(depth, this.camera.instance);
-    return height * this.camera.instance.aspect;
+    const height = this.getVisibleHeightAtZDepth(depth, this.instance);
+    return height * this.instance.aspect;
   }
 
   getViewportDimensionsAtZDepth(depth) {

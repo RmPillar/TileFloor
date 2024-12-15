@@ -15,10 +15,13 @@ export default class Mouse extends EventEmitter {
     this.cursor = new THREE.Vector2();
     this.mousePos = new THREE.Vector3(0, 0, 0);
     this.lastMousePos = new THREE.Vector3(0, 0, 0);
+    this.mouseUv = new THREE.Vector3(0, 0, 0);
+    this.lastMouseUv = new THREE.Vector3(0, 0, 0);
     this.raycaster = new THREE.Raycaster();
 
     this.intersectObjects = [];
     this.needsUpdate = false;
+    this.uvNeedsUpdate = false;
     this.active = false;
 
     this.xTo = gsap.quickTo(this.cursor, "x", {
@@ -90,9 +93,16 @@ export default class Mouse extends EventEmitter {
         intersect[0].point.z
       );
 
+      this.lastMouseUv.copy(this.mouseUv);
+      this.mouseUv.set(intersect[0].uv.x, intersect[0].uv.y, intersect[0].uv.z);
+
       if (this.mousePos.distanceTo(this.lastMousePos) > 0.001) {
         this.needsUpdate = true;
         this.lastMousePos.copy(this.mousePos);
+      }
+
+      if (this.mouseUv.distanceTo(this.lastMouseUv) > 0.001) {
+        this.uvNeedsUpdate = true;
       }
     }
   }

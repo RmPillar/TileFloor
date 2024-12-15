@@ -11,6 +11,7 @@ import sources from "./sources";
 import Mouse from "./Mouse";
 import Floor from "./Floor";
 import Tiles from "./Tiles";
+import Canvas from "./Canvas";
 
 let instance = null;
 
@@ -35,6 +36,7 @@ export default class Experience {
     this.statsMonitor = new StatsMonitor();
     this.resources = new Resources(sources);
     this.mouse = new Mouse();
+    this.canvas2D = new Canvas();
 
     this.resources.on("ready", () => {
       this.fog = new THREE.Fog(0x000000, 1, 12);
@@ -76,7 +78,8 @@ export default class Experience {
       !this.tiles ||
       !this.renderer ||
       !this.statsMonitor ||
-      !this.mouse
+      !this.mouse ||
+      !this.canvas2D
     )
       return;
 
@@ -86,6 +89,7 @@ export default class Experience {
     this.floor.update();
     this.tiles.update();
     this.mouse.update();
+    this.canvas2D.update();
   }
 
   destroy() {
@@ -95,7 +99,8 @@ export default class Experience {
       !this.floor ||
       !this.tiles ||
       !this.debug ||
-      !this.mouse
+      !this.mouse ||
+      !this.canvas2D
     ) {
       return;
     }
@@ -107,6 +112,7 @@ export default class Experience {
     this.tiles.destroy();
     this.debug.destroy();
     this.mouse.destroy();
+    this.canvas2D.destroy();
 
     this.instance = null;
     this.scene = null;
